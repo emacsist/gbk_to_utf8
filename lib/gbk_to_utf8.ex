@@ -12,14 +12,14 @@ defmodule GbkToUtf8 do
   def start do
     String.split(GbkToUtf8Map.cp936string(), "\r\n", trim: true)
     |> Enum.filter(fn l -> !String.starts_with?(l, "#") end)
-    |> IO.inspect()
+    #|> IO.inspect()
     |> Enum.map(fn l ->
       [gbk, utf8, _] = String.split(l, "\t")
       gbk = String.replace(gbk, "0x", "")
       utf8 = String.replace(utf8, "0x", "")
       {gbk, utf8}
     end)
-    |> IO.inspect()
+    #|> IO.inspect()
     |> Enum.each(fn {gbk, utf8} ->
       :persistent_term.put({__MODULE__, gbk}, utf8)
     end)
