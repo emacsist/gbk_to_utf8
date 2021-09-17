@@ -10,7 +10,7 @@ defmodule GbkToUtf8 do
   将 CP936 文件加载到 :persistent_term, key , value 都删除了 0x 前缀
   """
   def start do
-    String.split(GbkToUtf8Map.cp936(), "\r\n", trim: true)
+    String.split(GbkToUtf8Map.cp936string(), "\r\n", trim: true)
     |> Enum.filter(fn l -> !String.starts_with?(l, "#") end)
     |> IO.inspect()
     |> Enum.map(fn l ->

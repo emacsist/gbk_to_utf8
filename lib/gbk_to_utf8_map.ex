@@ -1,5 +1,5 @@
 defmodule GbkToUtf8Map do
-  def cp936 do
+  def cp936string do
   ~S"""
 #
 #    Name:     cp936 to Unicode table
