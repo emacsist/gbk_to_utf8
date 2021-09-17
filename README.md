@@ -1,6 +1,6 @@
 # GbkToUtf8
 
-**TODO: Add description**
+将GBK转换为Utf8
 
 ## Installation
 
@@ -10,7 +10,7 @@ by adding `gbk_to_utf8` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:gbk_to_utf8, "~> 0.1.0"}
+    {:gbk_to_utf8, "~> 0.1.1"}
   ]
 end
 ```
