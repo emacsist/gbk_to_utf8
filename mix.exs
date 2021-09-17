@@ -4,7 +4,7 @@ defmodule GbkToUtf8.MixProject do
   def project do
     [
       app: :gbk_to_utf8,
-      version: "0.1.2",
+      version: "0.1.3",
       elixir: "~> 1.12",
       start_permanent: Mix.env() == :prod,
       description: description(),
