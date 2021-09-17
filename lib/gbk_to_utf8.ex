@@ -10,14 +10,16 @@ defmodule GbkToUtf8 do
   将 CP936 文件加载到 :persistent_term, key , value 都删除了 0x 前缀
   """
   def start do
-    File.stream!("CP936.txt")
-    |> Stream.filter(fn l -> !String.starts_with?(l, "#") end)
-    |> Stream.map(fn l ->
+    String.split(GbkToUtf8Map.cp936(), "\r\n", trim: true)
+    |> Enum.filter(fn l -> !String.starts_with?(l, "#") end)
+    |> IO.inspect()
+    |> Enum.map(fn l ->
       [gbk, utf8, _] = String.split(l, "\t")
       gbk = String.replace(gbk, "0x", "")
       utf8 = String.replace(utf8, "0x", "")
       {gbk, utf8}
     end)
+    |> IO.inspect()
     |> Enum.each(fn {gbk, utf8} ->
       :persistent_term.put({__MODULE__, gbk}, utf8)
     end)
