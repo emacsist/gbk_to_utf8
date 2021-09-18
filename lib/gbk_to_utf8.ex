@@ -14,10 +14,18 @@ defmodule GbkToUtf8 do
     |> Enum.filter(fn l -> !String.starts_with?(l, "#") end)
     #|> IO.inspect()
     |> Enum.map(fn l ->
-      [gbk, utf8, _] = String.split(l, "\t")
-      gbk = String.replace(gbk, ["0x0", "0x"], "")
-      utf8 = String.replace(utf8, "0x", "")
-      {gbk, utf8}
+      #IO.inspect(l)
+      [gbk, utf8, _] = String.split(l, "\t", trim: true)
+      gbk = String.replace(gbk, ["0x"], "") |> String.trim()
+      utf8 = String.replace(utf8, "0x", "") |> String.trim()
+      if String.length(utf8) == 0 do
+        #IO.inspect(l)
+        {gbk |> String.to_integer(16), 0}
+      else
+        {gbk |> String.to_integer(16), utf8 |> String.to_integer(16)}
+      end
+
+
     end)
     #|> IO.inspect()
     |> Enum.each(fn {gbk, utf8} ->
@@ -26,51 +34,46 @@ defmodule GbkToUtf8 do
   end
 
   def get_utf_by_gbk_string(gbk_in) do
-    List.to_string(get_utf_by_gbk(gbk_in))
+    get_utf_by_gbk(gbk_in) |> List.to_string()
   end
 
   def get_utf_by_gbk(gbk_in) do
-    Enum.map(gbk_to_utf(gbk_in, byte_size(gbk_in) - 1, 0, []) |> tl() |> Enum.reverse(), fn e ->
-      case Integer.parse(e, 16) do
-        {n, _} -> n
-        :error -> 0
-      end
-    end)
+    gbk_to_utf(gbk_in, []) |> Enum.reverse
   end
 
-  defp gbk_to_utf(gbk_bin, bs, current, acc) when current - 1 == bs do
-    [find_gbk_utf_one(binary_part(gbk_bin, current - 1, 1)) | acc]
+  defp gbk_to_utf(gbk_bin, acc) when byte_size(gbk_bin) == 1 do
+    <<first_byte::8>> = gbk_bin
+    [find_gbk_utf_one(first_byte) | acc]
   end
 
-  defp gbk_to_utf(gbk_bin, bs, current, acc) when current - 2 == bs do
-    [find_gbk_utf_two(binary_part(gbk_bin, current - 2, 2)) | acc]
+  defp gbk_to_utf(gbk_bin, acc) when byte_size(gbk_bin) == 2 do
+    <<two_byte::16>> = gbk_bin
+    [find_gbk_utf_two(two_byte) | acc]
   end
 
-  defp gbk_to_utf(gbk_bin, bs, current, acc) do
-    first_byte = binary_part(gbk_bin, current, 1)
-    <<first_byte_value::8>> = first_byte
+  defp gbk_to_utf(gbk_bin, acc) do
+    <<first_byte::8, rest1::binary>> = gbk_bin
 
-    if first_byte_value <= 0x7F do
+    if first_byte <= 0x7F do
       # 表示是单字节字符
-      gbk_to_utf(gbk_bin, bs, current + 1, [find_gbk_utf_one(first_byte) | acc])
+      gbk_to_utf(rest1, [find_gbk_utf_one(first_byte) | acc])
     else
       # 表示是双字节字符
-      gbk_to_utf(gbk_bin, bs, current + 2, [
-        find_gbk_utf_two(binary_part(gbk_bin, current, 2)) | acc
-      ])
+      <<two_byte::16, rest2::binary>> = gbk_bin
+      gbk_to_utf(rest2, [find_gbk_utf_two(two_byte) | acc])
     end
   end
 
   # 单字节 <<x>>
   defp find_gbk_utf_one(b1) do
-    <<c::8>> = b1
-    :persistent_term.get({__MODULE__, Integer.to_string(c, 16)}, "0")
+    :persistent_term.get({__MODULE__, b1}, 0)
+    # GbkToUtf8Agent.get(Base.encode16(b1))
   end
 
   # 双字节 <<x1,x2>>
-  defp find_gbk_utf_two(b1) do
-    <<c::16>> = b1
-    :persistent_term.get({__MODULE__, Integer.to_string(c, 16)}, "0")
+  defp find_gbk_utf_two(b2) do
+    :persistent_term.get({__MODULE__, b2}, 0)
+    # GbkToUtf8Agent.get(Base.encode16(b2))
   end
 
 end
