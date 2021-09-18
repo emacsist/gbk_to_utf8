@@ -15,7 +15,7 @@ defmodule GbkToUtf8 do
     #|> IO.inspect()
     |> Enum.map(fn l ->
       [gbk, utf8, _] = String.split(l, "\t")
-      gbk = String.replace(gbk, "0x", "")
+      gbk = String.replace(gbk, ["0x0", "0x"], "")
       utf8 = String.replace(utf8, "0x", "")
       {gbk, utf8}
     end)
@@ -72,4 +72,5 @@ defmodule GbkToUtf8 do
     <<c::16>> = b1
     :persistent_term.get({__MODULE__, Integer.to_string(c, 16)}, "0")
   end
+
 end
