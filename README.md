@@ -76,3 +76,27 @@ Comparison:
 iconv gbk        7.58 K
 my gbk           0.31 K - 24.27x slower +3.07 ms
 ```
+
+# 优化 binary 的版本
+
+```bash
+Name                ips        average  deviation         median         99th %
+my gbk           1.69 M      592.16 ns  ±3633.05%         450 ns         750 ns
+iconv gbk        1.39 M      720.13 ns  ±4209.94%         550 ns         950 ns
+
+Comparison:
+my gbk           1.69 M
+iconv gbk        1.39 M - 1.22x slower +127.97 ns
+```
+
+长文本
+
+```bash
+Name                ips        average  deviation         median         99th %
+iconv gbk        7.61 K       0.131 ms     ±8.70%       0.129 ms       0.188 ms
+my gbk           0.41 K        2.42 ms     ±9.41%        2.44 ms        3.02 ms
+
+Comparison:
+iconv gbk        7.61 K
+my gbk           0.41 K - 18.42x slower +2.29 ms
+```

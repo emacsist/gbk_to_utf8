@@ -41,19 +41,15 @@ defmodule GbkToUtf8 do
     gbk_to_utf(gbk_in, []) |> Enum.reverse
   end
 
-  defp gbk_to_utf(gbk_bin, acc) when byte_size(gbk_bin) == 1 do
-    <<first_byte::8>> = gbk_bin
+  defp gbk_to_utf(<<first_byte::8>>, acc) do
     [find_gbk_utf_one(first_byte) | acc]
   end
 
-  defp gbk_to_utf(gbk_bin, acc) when byte_size(gbk_bin) == 2 do
-    <<two_byte::16>> = gbk_bin
+  defp gbk_to_utf(<<two_byte::16>>, acc) do
     [find_gbk_utf_two(two_byte) | acc]
   end
 
-  defp gbk_to_utf(gbk_bin, acc) do
-    <<first_byte::8, rest1::binary>> = gbk_bin
-
+  defp gbk_to_utf(<<first_byte::8, rest1::binary>> = gbk_bin, acc) do
     if first_byte <= 0x7F do
       # 表示是单字节字符
       gbk_to_utf(rest1, [find_gbk_utf_one(first_byte) | acc])
